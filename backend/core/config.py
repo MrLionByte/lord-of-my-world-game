@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     DATABASE_URL: str
     ALLOWED_ORIGINS: str
-    OPENAI_API_KEY: str
+    GROQ_API_KEY: str
     
     
     class Config:
