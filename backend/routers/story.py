@@ -12,6 +12,7 @@ from schemas.story import (
     CompleteStoryNodeResponse
 )
 from schemas.job import StoryJobRequest
+from core.story_generator import StoryGenerator
 
 
 router = APIRouter(
@@ -23,6 +24,7 @@ def get_session_id(session_id: Optional[str] = Cookie(None)) -> str:
     if not session_id:
         session_id = str(uuid.uuid4())
     return session_id
+
 
 @router.post("/create", response_model=StoryJobRequest)
 def create_story(
@@ -56,23 +58,31 @@ def create_story(
 
 
 def generate_story_task(job_id: str, theme: str, session_id: str):
+    print("Starting background task for job_id:", job_id, theme, session_id)
     db = SessionLocal()
-    
+    print("Database session created", db)
     try:
         job = db.query(StoryJob).filter(StoryJob.job_id == job_id).first()
+        print("Found job:", job)
         if not job:
             return 
         
         try:
             job.status = "processing"
             db.commit()
+            print("Job status updated to processing")
+            story = StoryGenerator.generate_story(db, session_id, theme)
+            print("Story generated:", story)
+            if not story:
+                raise ValueError("Generated story content is empty")
             
-            story = {} # To-do: Placeholder for story generation logic
-            job.story_id = 1 #To-do: Placeholder for actual story ID
+            job.story_id = story.id
             job.status = "completed"
             job.completed_at = datetime.now()
             db.commit()
         except Exception as e:
+            print("Error occurred at generate_story_task:", e)
+            db.rollback()
             job.status = "failed"
             job.completed_at = datetime.now()
             job.error = str(e)
