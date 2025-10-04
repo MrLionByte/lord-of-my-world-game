@@ -1,3 +1,5 @@
+import time
+
 from sqlalchemy.orm import Session
 
 from langchain_groq import ChatGroq
@@ -9,20 +11,31 @@ from models.story import Story,StoryNode
 from core.models import StoryLLMResponse, StoryNodeLLM
 from core.config import settings
 
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 class StoryGenerator:
     @classmethod
     def _get_llm(cls):
         return ChatGroq(
-            model="openai/gpt-oss-120b",
-            api_key=settings.GROQ_API_KEY
+            model="llama-3.3-70b-versatile",
+            api_key=settings.GROQ_API_KEY,
+            temperature=0.7,
+            max_tokens=2048
             )
     
     @classmethod
     def generate_story(cls, db: Session, session_id: str, theme: str) -> Story:
-        print("Generating story with theme:", theme)
+        if not theme or len(theme.strip()) < 3:
+            raise ValueError("Theme must be at least 3 characters long.")
+        
+        logger.info(f"Generating story for session {session_id} with theme: {theme}")
+        
+        start_time = time.time()
         llm = cls._get_llm()
-        print("LLM initialized:", llm)
         story_parser = PydanticOutputParser(pydantic_object=StoryLLMResponse)
         prompt = ChatPromptTemplate.from_messages([
             (
@@ -37,10 +50,13 @@ class StoryGenerator:
         raw_response = llm.invoke(prompt.invoke({}))
         
         response_text = raw_response
-        if hasattr(raw_response, 'content'):
+        
+        try:
             response_text = raw_response.content
-
-        story_structure = story_parser.parse(response_text)
+            story_structure = story_parser.parse(response_text)
+        except Exception as e:
+            raise ValueError(f"Failed to parse story response: {e}. Raw: {response_text[:500]}...")
+        
         story_db = Story(
             title=story_structure.title, 
             content=story_structure.rootNode.content, 
@@ -53,8 +69,6 @@ class StoryGenerator:
         if isinstance(root_node_data, dict):
             root_node_data = StoryNodeLLM.model_validate(root_node_data)
         
-        print("At story DB")
-        print(type(story_db.id))
         cls._process_story_node(story_db.id, db, root_node_data, is_root=True)
 
         db.commit()
