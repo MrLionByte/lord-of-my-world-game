@@ -1,6 +1,9 @@
-# Lord Of My World Game
+<h1 align="left">
+  Lord Of My World Game
+  <img src="https://i.postimg.cc/y6mKzJ8J/cropped-circle-image-1.png" alt="Logo" width="60" height="60" style="vertical-align: middle; margin-left: 10px;" />
+</h1>
 
-![Logo Placeholder](https://via.placeholder.com/800x400?text=Lord+Of+My+World+Game) <!-- Replace with actual logo or screenshot -->
+Try it out : https://lord-of-my-world-game.vercel.app/story
 
 A thrilling choose-your-own-adventure game where **you** are the architect of epic tales! Powered by AI, dive into dynamic, branching stories tailored to your chosen theme. Make choices that shape destinies, uncover hidden paths, and chase victorious endings—or face dramatic twists. Built for endless replayability and immersive fun.
 
