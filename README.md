@@ -3,7 +3,7 @@
   <img src="https://i.postimg.cc/y6mKzJ8J/cropped-circle-image-1.png" alt="Logo" width="60" height="60" style="vertical-align: middle; margin-left: 10px;" />
 </h1>
 
-Try it out : https://lord-of-my-world-game.vercel.app/story
+<a href="https://lord-of-my-world-game.vercel.app">Try it out </a>
 
 A thrilling choose-your-own-adventure game where **you** are the architect of epic tales! Powered by AI, dive into dynamic, branching stories tailored to your chosen theme. Make choices that shape destinies, uncover hidden paths, and chase victorious endings—or face dramatic twists. Built for endless replayability and immersive fun.
 
